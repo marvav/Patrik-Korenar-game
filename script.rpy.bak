@@ -1,0 +1,328 @@
+﻿# The script of the game goes in this file.
+
+# Declare characters used by this game. The color argument colorizes the
+# name of the character.
+transform left:
+    xpos -0.2
+transform right:
+    xpos 1.2
+
+define p = Character("Petr", who_color="#c8ffc8")
+define v = Character("Výpravčí", who_color="#c8ffc8")
+define audio.make_note = "audio/make_note.mp3"
+define audio.denik_open = "audio/denik_open.mp3"
+define audio.drawer_open_sound = "audio/drawer_open_sound.mp3"
+define audio.drawer_closed_sound = "audio/drawer_closed_sound.mp3"
+
+label start:
+    call hide_everything
+    window hide
+    scene rail_station with dissolve
+    pause
+    "hmmmm"
+    show patrik_happy at left with dissolve
+    pause
+    play sound "audio/paper_show.mp3"
+    pause 2.0
+    show conductor at right
+    pause 0.5
+    hide patrik_happy
+    show patrik_shock at left
+    p "Uhhh co?"
+    v "Ale... Nemohl jsem si nevšimnout, jak zamyšleně hledíte"
+    v "Vždyť byste i ten vlak propásl"
+    v "Jedete do Faktic?"
+    hide patrik_shock at left
+    show patrik_concern at left
+    p "Eh, ano, čeká mě tam nějaká práce."
+    p "Jak jste to uhodl?"
+    hide conductor at right
+    show conductor_laugh at right
+    v "Pane Květinář, tady mnoho lidí nepřestupuje a když už, tak vždy do Faktic."
+    v "Občas si říkám, že odlehlejší místo v naší republice nenajdete."
+    v "Dál už jsou jen hory a za nimi, kdo ví.."
+    p "Zajímavé, předpokládám, že také víte, proč tam jedu."
+    v "To se ví, taky čtu noviny, když se tu nudím na vechtrovně."
+    v "Vím dost na to, abych mohl říct, že vás tam nic dobrého nečeká."
+    p "Pak jistě nevíte dost na to, aby vám došlo, že tam jet musím."
+    p "Některé věci nelze nechat nevyřešené. Měl jsem se vrátit dlouho předtím než došlo k té vraždě."
+    v "Á, takže jste si jistý, že to byla vražda?"
+    hide patrik_concern
+    show patrik_happy
+    p "Abyste věděl, tak to je stále předmětem vyšetřování. Vyšetřování, které stále pořádne nezačalo."
+    p "Četníci jen rozšlapali všechny důležité stopy a teď uvázli na mrtvém bodě."
+    v "Ano, četl jsem váš včerejší sloupek Fakta Vítězí..."
+    pause
+    v "Opravdu tam chcete jet? Lidé by si mohli pomyslet spoustu věcí."
+    menu choice:
+        "Možná to je opravdu špatný nápad":
+            jump rychly_konec
+        "Teď už z toho nevycouvnu. Musím o tom napsat... a záhadu vyřešit":
+            v "No jak myslíte, už vám to jede. Tak zlomte vaz."
+    play music "audio/train_ambience.mp3" fadein 5.0 loop
+    hide conductor with dissolve
+    hide patrik_happy with dissolve
+    pause
+
+
+label rychly_konec:
+    p "Máte pravdu. Byl špatný nápad tam jezdit. Počkám na vlak, kterým pojedu zpátky."
+    v "Někdy je lepší nechat minulost spát a neprobouzet běsy."
+    pause
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+init:
+    $ house_entrance_visited = 0
+    $ house_library_visited = 0
+    $ living_room_visited = 0
+    $ hall_visited = 0
+    $ cellar_visited = 0
+
+    $ house_key_found = 0
+    $ house_date_found = 0
+    $ cellar_chest_found = 0
+
+    image rain:
+        "rain1.png"
+        0.2
+        "rain3.png"
+        0.2
+        "rain2.png"
+        0.2
+        repeat
+
+label house_lamp:
+    "Sakra, je tady rozsvíceno!"
+    "Někdo je nejspíš pořád ještě vzhůru!"
+    call house_arrows
+    return
+
+label house_photo_flipped:
+    hide house_photo_zoomed
+    show house_photo_zoomed_back
+    pause
+    "Hmmm, asi datum svatby..."
+    "Ikdyž..."
+    "Proč by bylo loňské datum na 40 let staré fotce?"
+    "To si poznamenám"
+    $ house_date_found = 1
+    play sound make_note
+    hide house_photo_zoomed_back
+    return
+
+label house_photo:
+    show house_photo_zoomed
+    hide screen open
+    "Páni!, Paní Zelinářová je velice krásná..."
+    "...teda byla, před 40 lety."
+    call screen item("Otočit fotku", "house_photo_flipped", "arrow_rotate_%s")
+    hide house_photo_zoomed
+    show screen open("Šuplík","house_drawer","house_drawer_%s")
+    call house_arrows
+
+label house_drawer:
+    play sound drawer_open_sound
+    call hide_everything
+    scene house_drawer
+    if not house_key_found:
+        show screen clue_note("Podivný klíček", "house_drawer_key_%s", "house_key_found")
+        "Hmmm, typická skrýš"
+    else:
+        "Prázdný úložný prostor. Narušuji zde soukromé vlastnictví jednotky nejsoucna."
+        "Měl bych se vzdálit"
+    call screen arrow_back("Zavřít šuplík", "house_drawer")
+    play sound drawer_closed_sound
+    call start
+
+label house_arrows:
+    call screen arrow_left("Knihovna", "house_library")
+    return
+
+label house_items:
+    show screen clue("Lampa", "house_lamp", "lamp_%s")
+    show screen clue2("Fotografie", "house_photo", "house_photo_%s")
+    show screen open("Šuplík","house_drawer","house_drawer_%s")
+    return
+
+label fake_start:
+    call hide_everything
+    window hide
+    scene house
+    show patrik_happy at left
+    if not house_entrance_visited:
+        "Hmmm, skvěle, nikdo si nevšiml mého vplížení"
+        "Nyní se pustím do hledání stop, ale hlavně potichu..."
+        "Tiše jako myška!"
+        $ house_entrance_visited = 1
+    call house_items
+    call house_arrows
+
+label house_library_book:
+
+label house_library_items:
+    show screen clue("Otevřená kniha", "house_library_book", "house_library_lastopenbook_%s")
+    return
+
+label house_library:
+    call hide_everything
+    scene house_library
+    "Ale, ale!"
+    show patrik_happy at right
+    if not house_library_visited:
+        "...to je ale luxusní jídelna."
+        "Tady by se hezky s popcornem dívalo na Fakta Vítězí"
+        "Jsem zvědav co bych tady mohl najít zajímavého"
+        $ house_library_visited = 1
+    call house_library_items
+    call screen arrows_left_right("Obývák", "living_room","arrow_left_%s", "Vstup", "start","arrow_right_%s")
+
+label living_room_items:
+    show screen clue("Otevřená kniha", "house_library_book", "house_library_lastopenbook_%s")
+    call screen arrows_left_right("Dveře do sklepa", "cellar", "living_room_dark_door_%s", "Dveře do knihovny", "house_library", "living_room_door_library_%s")
+    return
+
+label living_room:
+    call hide_everything
+    scene living_room_dark
+    if not living_room_visited:
+        show patrik_concern
+        "Uuuuu temnotáá..."
+        $ living_room_visited = 1
+    call living_room_items
+    return
+
+label cellar_chest:
+    call hide_everything
+    show chest_closed
+    "Takže v rozbité bedně je ještě menší bedna, huh?!"
+    "Někdo to sem nejspíš přinesl nedávno a prozkoumává tady obsah"
+    "Možná tu najdu něco užitečného"
+    $ cellar_chest_found = 1
+    play sound make_note
+    call cellar
+    return
+
+label cellar_clickables:
+    show screen open("Rozdělaná bedna","cellar_chest","vine_cellar_chest_%s")
+    return
+
+label cellar_hide:
+    menu:
+        "Vskočit do harampádí":
+            scene vine_cellar_patrik_hidden
+        "Čelit hrozbě neohroženě schovaný v tom samém harampádí":
+            scene vine_cellar_patrik_hidden
+    pause
+    "Tady mě určitě nikdo nenajde"
+    "Pšššt"
+
+
+label cellar:
+    call hide_everything
+    scene vine_cellar
+    show patrik_happy at left
+    if not cellar_visited:
+        "Musím uznat, že ta stará babka má docela styl."
+        "Až půjde vyšetřování stranou, možná se k ní stavím na lahvinku Est Est."
+        "A pokud je vražedkyní ona, jistě tu budu moci něco zkonfiskovat"
+        $ cellar_visited = 1
+    if house_key_found and cellar_chest_found:
+        pause
+        "Co to slyším?"
+        "..."
+        "NĚKDO JDE PO SCHODECH!!"
+        "Honem, kam se jen schovám?"
+        call cellar_hide
+
+    call cellar_clickables
+    call screen arrow_left("Obývák", "living_room")
+
+label end:
+    pause
